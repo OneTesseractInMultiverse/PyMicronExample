@@ -8,6 +8,10 @@ from micron.async import (
     init_async_service
 )
 
+from micron.dao.mem.mem_person_repository import (
+    MemPersonRepository
+)
+
 
 # ------------------------------------------------------------------------------
 # SETUP GENERAL APPLICATION
@@ -28,6 +32,8 @@ app.debug = True
     
     @see http://flask.pocoo.org/docs/dev/logging/
 """
+
+person_repo = MemPersonRepository()
 
 # ------------------------------------------------------------------------------
 # LOAD RESOURCE ENDPOINTS

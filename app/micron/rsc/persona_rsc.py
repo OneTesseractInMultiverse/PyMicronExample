@@ -1,39 +1,47 @@
 from micron import (
-    app
+    app,
+    person_repo
 )
 from flask import (
     jsonify,
     request,
     url_for
 )
-
-persons = [
-    {
-        "id": 117240449,
-        "name": "Josue",
-        "last_name": "Gabuardi",
-        "age": 19
-    },
-    {
-        "id": 114170498,
-        "name": "Pedro",
-        "last_name": "Guzman",
-        "age": 28
-    }
-]
+from micron.models.person import (
+    Person
+)
 
 
 @app.route('/api/v1/person', methods=['GET'])
 def get_persons():
-    return jsonify(persons)
+    return jsonify(person_repo.get_all())
 
 
 @app.route('/api/v1/person/<uid>', methods=['GET'])
 def get_person_by_id(uid):
-
-    for person in persons:
-        if str(person['id']) == uid:
-            return jsonify(person)
+    person = Person(personal_id=uid, repo=person_repo)
+    if person.load():
+        return jsonify(person.as_dictionary)
     return jsonify({
-        "message": "The requested person was not found"
+        "msg": "Person not found"
     }), 404
+
+
+@app.route('/api/v1/person', methods=["POST"])
+def create_person():
+    if not request.is_json:
+        return jsonify({
+            "msg": "Sorry, this API only accepts JSON"
+        }), 400
+
+    state = request.get_json()
+    person = Person(repo=person_repo)
+    person.parse(state)
+    if person.save():
+        return jsonify({
+            "msg": "Person created successfully"
+        }), 201
+    return jsonify({
+        "msg": "Could not create person"
+    }), 500
+
